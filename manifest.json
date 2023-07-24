@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "山竹阅读助手",
+  "description": "帮您阅读并总结页面内容，提高阅读效率，跨越语言障碍。",
+  "version": "1.0.11",
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "scripting",
+    "tabs",
+    "storage",
+    "webRequest"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "icons": {
+    "16": "images/icon16.png",
+    "32": "images/icon32.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "32": "images/icon32.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "dialog.html",
+        "images/thumbs-up.png",
+        "images/icon16.png",
+        "images/icon32.png",
+        "images/icon48.png",
+        "images/icon128.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}

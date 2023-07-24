@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      width: 240px;
+      height: 210px;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+      background-color: #f0f5eb;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+    <div style="display: flex; height: 30px; padding-top: 2px; padding-bottom: 3px; align-items: center; justify-content: flex-start;">
+      <img src="images/thumbs-up.png" style="width: 25px; height: 25px; margin-bottom: 0px;">
+      <h3 style="margin-left: 10px;"> 山 竹 阅 读 助 手 </h3>
+    </div>
+    <button style="width: 160px; height: 35px; border-radius: 3px; background-color: #447e56; color: white; font-weight: 600;" id="btn-show"> 阅读选中的内容 </button>
+    
+    <div style="height: 30px; margin-top: 20px; font-size: 14px; font-weight: 600;">
+      <input type="checkbox" id="checkbox-show-btn" style="width: 15px; height: 15px;" checked>
+      <label for="checkbox-show-btn"> 当有选中文字时，在鼠标位置显示 "助手" 按钮</label>
+    </div>
+    
+    <div style="height: 30px; margin-top: 20px; font-size: 14px; font-weight: 600;">
+      <label for="language"> 显示的语言: </label>
+      <select name="language" id="language" style="width: 90px; height: 25px; margin-left: 20px;">
+        <option value="en">English</option>
+        <option value="zh">中文</option>
+      </select>
+    </div>
+
+    <div style="height: 30px; margin-top: 10px; font-size: 13px; font-weight: 600;">
+      问题或意见反馈: <a href="mailto:service@mangosteen.one">service@mangosteen.one</a>
+    </div>
+
+  </div>
+  <script src="popup.js"></script>
+</body>
+
+</html>
