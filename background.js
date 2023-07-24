@@ -35,12 +35,36 @@ function apiGetSumup(data, lan) {
   });
 }
 
+function apiGetSumupStream(data, lan, sender) {
+  const token = 'your-token-here';
+  let message = '';
+  // const apiUrl = 'http://localhost:8080/ai/sum-up-stream/';
+  const apiUrl = 'http://ai.mangosteen.test/apiShop/ai/sum-up-stream/';
+  // const apiUrl = 'https://ai.mangosteen.one/apiShop/ai/sum-up-stream/';
+  var source = new EventSource(apiUrl + '?action=sumup&language=' + lan + '&token=' + token + '&type=text&text=' + data);
+
+  source.addEventListener('message', function (event) {
+    message += event.data;
+    chrome.tabs.sendMessage(sender.tab.id, { action: 'apiGetSumupResponse', data: message });
+    // console.log(event.data);
+  });
+
+  source.addEventListener('end', function (event) {
+    console.log('End:', event.data);
+    source.close();
+  });
+
+  source.addEventListener('error', function (event) {
+    chrome.tabs.sendMessage(sender.tab.id, { action: 'apiGetSumupResponse', data: event.data });
+    console.log('An error occurred:', event.data);
+    source.close();
+  });
+}
+
 chrome.runtime.onMessage.addListener(function (request, sender) {
   // console.log('background runtime message', request);
-  if (request.method == "apiGetSumup") {
-    apiGetSumup(request.data, request.lan).then(data => {
-      chrome.tabs.sendMessage( sender.tab.id, { action: 'apiGetSumup', data: data } );
-    });
+  if (request.method == "callApiGetSumup") {
+    apiGetSumupStream(request.data, request.lan, sender);
   }
 });
 

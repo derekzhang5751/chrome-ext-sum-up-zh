@@ -101,7 +101,7 @@ document.addEventListener('mouseup', function (e) {
 
           if (strLen > 0) {
             // 获取数据并更新对话框的内容
-            chrome.runtime.sendMessage({ method: "apiGetSumup", data: selectedText, lan: language });
+            chrome.runtime.sendMessage({ method: "callApiGetSumup", data: selectedText, lan: language });
           }
         });
 
@@ -139,17 +139,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
         if (strLen > 0) {
           // 获取数据并更新对话框的内容
-          chrome.runtime.sendMessage({ method: "apiGetSumup", data: selectedText, lan: language });
+          chrome.runtime.sendMessage({ method: "callApiGetSumup", data: selectedText, lan: language });
         }
       });
-  } else if (request.action === 'apiGetSumup') {
+  } else if (request.action === 'apiGetSumupResponse') {
     if (myDialogShown) {
       let contentDiv = document.getElementById('sumupContent');
-      if (request.data.success) {
-        contentDiv.textContent = request.data.reply.reply.content;
-      } else {
-        contentDiv.textContent = request.data.reply.msg;
-      }
+      contentDiv.textContent = request.data
     }
   } else if (request.action === 'StorageChanged') {
     if (request.key === 'sumupShowStatus') {
