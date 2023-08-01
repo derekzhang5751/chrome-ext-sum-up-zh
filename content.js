@@ -2,6 +2,12 @@ var translateButton = null;
 var myDialogShown = false;
 var enableButton = true;
 var language = 'en';
+var sumupToken = '';
+
+
+chrome.storage.local.get('sumupToken', function (data) {
+  sumupToken = data.sumupToken || 'your-token-here';
+});
 
 chrome.storage.sync.get('sumupLanguage', function (data) {
   language = data.sumupLanguage || 'en';
@@ -15,6 +21,7 @@ chrome.storage.sync.get('sumupShowStatus', function (data) {
   }
   enableButton = checkboxStatus;
 });
+
 
 document.addEventListener('mouseup', function (e) {
   if (!enableButton) {
@@ -101,7 +108,13 @@ document.addEventListener('mouseup', function (e) {
 
           if (strLen > 0) {
             // 获取数据并更新对话框的内容
-            chrome.runtime.sendMessage({ method: "callApiGetSumup", data: selectedText, lan: language });
+            chrome.runtime.sendMessage({
+              method: "callApiGetSumup",
+              data: selectedText,
+              lan: language,
+              token: sumupToken,
+              url: window.location.href
+            });
           }
         });
 
@@ -131,7 +144,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         }
         myDialogShown = true;
         document.body.appendChild(dialogBox);
-        
+
         btnClose.addEventListener('click', function (event) {
           dialogBox.remove();
           myDialogShown = false;
@@ -139,7 +152,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
         if (strLen > 0) {
           // 获取数据并更新对话框的内容
-          chrome.runtime.sendMessage({ method: "callApiGetSumup", data: selectedText, lan: language });
+          chrome.runtime.sendMessage({
+            method: "callApiGetSumup",
+            data: selectedText,
+            lan: language,
+            token: sumupToken,
+            url: window.location.href
+          });
         }
       });
   } else if (request.action === 'apiGetSumupResponse') {
@@ -152,6 +171,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       enableButton = request.value;
     } else if (request.key === 'sumupLanguage') {
       language = request.value;
+    } else if (request.key === 'sumupToken') {
+      sumupToken = request.value;
     }
   }
 });

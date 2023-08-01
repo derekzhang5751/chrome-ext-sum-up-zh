@@ -1,18 +1,17 @@
-
-function apiGetSumup(data, lan) {
+// Description: background script
+function apiGetSumupV2(data, lan, token, url, sender) {
   return new Promise((resolve, reject) => {
     const body = new FormData();
     body.append('action', 'sumup');
     body.append('text', data);
+    body.append('url', url);
     body.append('language', lan);
     body.append('type', 'text');
-    const token = 'your-token-here';
     // 返回一个promise
-    // const apiUrl = 'http://localhost:8080/ai/sum-up/';
-    const apiUrl = 'https://ai.mangosteen.one/apiShop/ai/sum-up/';
+    // const apiUrl = 'http://localhost:8080/mylib/sum-up-create/';
+    const apiUrl = 'https://ai.mangosteen.one/apiShop/mylib/sum-up-create/';
     return fetch(apiUrl, {
       method: 'POST',
-      timeout: 180000,
       headers: {
         'Authorization': `Bearer ${token}`
       },
@@ -26,7 +25,18 @@ function apiGetSumup(data, lan) {
         }
       })
       .then(data => {
-        resolve(data);
+        if (data.success) {
+          // Save token to chrome storage
+          chrome.storage.local.set({ sumupToken: data.reply.token }, function () {
+            // console.log('sumupToken is set to ' + data.reply.token);
+          });
+          // begin to receive data
+          apiGetSumupStream(data.reply.sessionId, data.reply.token, sender);
+          resolve(data);
+        } else {
+          // reject(data);
+          console.log('apiGetSumupV2 something wrong');
+        }
       })
       .catch(error => {
         console.log('There was a problem with the fetch operation: ' + error.message);
@@ -35,12 +45,11 @@ function apiGetSumup(data, lan) {
   });
 }
 
-function apiGetSumupStream(data, lan, sender) {
-  const token = 'your-token-here';
+function apiGetSumupStream(sessionId, token, sender) {
   let message = '';
-  // const apiUrl = 'http://localhost:8080/ai/sum-up-stream/';
-  const apiUrl = 'https://ai.mangosteen.one/apiShop/ai/sum-up-stream/';
-  var source = new EventSource(apiUrl + '?action=sumup&language=' + lan + '&token=' + token + '&type=text&text=' + data);
+  // const apiUrl = 'http://localhost:8080/mylib/sum-up-stream/';
+  const apiUrl = 'https://ai.mangosteen.one/apiShop/mylib/sum-up-stream/';
+  var source = new EventSource(apiUrl + '?token=' + token + '&sessionId=' + sessionId);
 
   source.addEventListener('message', function (event) {
     message += event.data;
@@ -63,7 +72,7 @@ function apiGetSumupStream(data, lan, sender) {
 chrome.runtime.onMessage.addListener(function (request, sender) {
   // console.log('background runtime message', request);
   if (request.method == "callApiGetSumup") {
-    apiGetSumupStream(request.data, request.lan, sender);
+    apiGetSumupV2(request.data, request.lan, request.token, request.url, sender);
   }
 });
 
@@ -82,6 +91,13 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
       });
     }
     if (namespace === 'sync' && key === 'sumupShowStatus') {
+      // 首先，获取当前的tab
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        // 然后，向这个tab发送一个消息
+        chrome.tabs.sendMessage(tabs[0].id, { action: "StorageChanged", key: key, value: newValue });
+      });
+    }
+    if (namespace === 'local' && key === 'sumupToken') {
       // 首先，获取当前的tab
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         // 然后，向这个tab发送一个消息
