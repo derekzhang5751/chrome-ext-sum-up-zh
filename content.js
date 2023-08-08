@@ -42,6 +42,7 @@ document.addEventListener('mouseup', function (e) {
     image.src = imageURL;
     image.style.width = '30px';
     image.style.height = '30px';
+    image.alt = 'sumup';
     if (translateButton !== null) {
       translateButton.remove();
     }
