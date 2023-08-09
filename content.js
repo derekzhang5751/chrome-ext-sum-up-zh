@@ -24,6 +24,9 @@ chrome.storage.sync.get('sumupShowStatus', function (data) {
 
 
 document.addEventListener('mouseup', function (e) {
+  if (e.button !== 0) {
+    return;
+  }
   if (!enableButton) {
     return;
   }
