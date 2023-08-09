@@ -97,10 +97,8 @@ document.addEventListener('mouseup', function (e) {
           let contentDiv = dialogDoc.getElementById('sumupContent');
           if (strLen === 0) {
             contentDiv.textContent = '还没有选择要阅读的文字。';
-          } else if (strLen < 3000) {
-            contentDiv.textContent = '大约需要几秒钟，请稍等。';
           } else {
-            contentDiv.textContent = '您选择的文字长度已超过3000, 可能需要更多时间, 请耐心等待。';
+            contentDiv.textContent = '正在阅读，请稍等...';
           }
           myDialogShown = true;
           document.body.appendChild(dialogBox);
@@ -141,10 +139,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         let contentDiv = dialogDoc.getElementById('sumupContent');
         if (strLen === 0) {
           contentDiv.textContent = '还没有选择要阅读的文字。';
-        } else if (strLen < 3000) {
-          contentDiv.textContent = '大约需要几秒钟，请稍等。';
         } else {
-          contentDiv.textContent = '您选择的文字长度已超过3000, 可能需要更多时间, 请耐心等待。';
+          contentDiv.textContent = '正在阅读，请稍等...';
         }
         myDialogShown = true;
         document.body.appendChild(dialogBox);
