@@ -1,15 +1,17 @@
+const apiUrlBase = 'http://192.168.0.20:8080';
+// const apiUrlBase = 'https://ai.mangosteen.one/apiShop';
+
 // Description: background script
-function apiGetSumupV2(data, lan, token, url, sender) {
+function apiGetSumupV2(operation, data, lan, token, url, sender) {
   return new Promise((resolve, reject) => {
     const body = new FormData();
-    body.append('action', 'sumup');
+    body.append('action', operation);
     body.append('text', data);
     body.append('url', url);
     body.append('language', lan);
     body.append('type', 'text');
     // 返回一个promise
-    // const apiUrl = 'http://localhost:8080/mylib/sum-up-create/';
-    const apiUrl = 'https://ai.mangosteen.one/apiShop/mylib/sum-up-create/';
+    const apiUrl = apiUrlBase + '/mylib/sum-up-create/';
     return fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -47,19 +49,23 @@ function apiGetSumupV2(data, lan, token, url, sender) {
 
 function apiGetSumupStream(sessionId, token, sender) {
   let message = '';
-  // const apiUrl = 'http://localhost:8080/mylib/sum-up-stream/';
-  const apiUrl = 'https://ai.mangosteen.one/apiShop/mylib/sum-up-stream/';
+  console.log('apiGetSumupV2', apiUrlBase)
+  const apiUrl = apiUrlBase + '/mylib/sum-up-stream/';
   var source = new EventSource(apiUrl + '?token=' + token + '&sessionId=' + sessionId);
 
   source.addEventListener('message', function (event) {
-    message += event.data;
+    if (event.data.length > 0) {
+      message += event.data;
+    } else {
+      message += '\n';
+    }
     chrome.tabs.sendMessage(sender.tab.id, { action: 'apiGetSumupResponse', data: message });
-    // console.log(event.data);
   });
 
   source.addEventListener('end', function (event) {
     console.log('End:', event.data);
     source.close();
+    chrome.tabs.sendMessage(sender.tab.id, { action: 'apiGetSumupResponseEnd', data: event.data });
   });
 
   source.addEventListener('error', function (event) {
@@ -72,7 +78,7 @@ function apiGetSumupStream(sessionId, token, sender) {
 chrome.runtime.onMessage.addListener(function (request, sender) {
   // console.log('background runtime message', request);
   if (request.method == "callApiGetSumup") {
-    apiGetSumupV2(request.data, request.lan, request.token, request.url, sender);
+    apiGetSumupV2(request.operation, request.data, request.lan, request.token, request.url, sender);
   }
 });
 
@@ -104,5 +110,32 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
         chrome.tabs.sendMessage(tabs[0].id, { action: "StorageChanged", key: key, value: newValue });
       });
     }
+  }
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "mangosteenTranslateContextMenu",
+    title: "翻译选中的内容",
+    contexts: ["selection"] // You can specify when the menu appears
+  });
+
+  chrome.contextMenus.create({
+    id: "mangosteenSummarizeContextMenu",
+    title: "总结提炼选中的内容",
+    contexts: ["selection"] // You can specify when the menu appears
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  switch (info.menuItemId) {
+    case "mangosteenTranslateContextMenu":
+      // Translate the selected text
+      chrome.tabs.sendMessage(tab.id, { action: "openSumUpDialog", operation: "translate" });
+      break;
+    case "mangosteenSummarizeContextMenu":
+      // Summarize the selected text
+      chrome.tabs.sendMessage(tab.id, { action: "openSumUpDialog", operation: "summarize" });
+      break;
   }
 });

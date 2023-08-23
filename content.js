@@ -3,6 +3,7 @@ var myDialogShown = false;
 var enableButton = true;
 var language = 'en';
 var sumupToken = '';
+var readingLength = 0;
 
 
 chrome.storage.local.get('sumupToken', function (data) {
@@ -89,13 +90,13 @@ document.addEventListener('mouseup', function (e) {
       fetch(chrome.runtime.getURL('dialog.html'))
         .then(response => response.text())
         .then(data => {
-          let strLen = selectedText.length;
+          readingLength = selectedText.length;
           let parser = new DOMParser();
           let dialogDoc = parser.parseFromString(data, 'text/html');
           let dialogBox = dialogDoc.getElementById('sumupDialog');
           let btnClose = dialogDoc.getElementById('btn-close');
           let contentDiv = dialogDoc.getElementById('sumupContent');
-          if (strLen === 0) {
+          if (readingLength === 0) {
             contentDiv.textContent = '还没有选择要阅读的文字。';
           } else {
             contentDiv.textContent = '正在阅读，请稍等...';
@@ -108,10 +109,11 @@ document.addEventListener('mouseup', function (e) {
             myDialogShown = false;
           }, { once: true });
 
-          if (strLen > 0) {
+          if (readingLength > 0) {
             // 获取数据并更新对话框的内容
             chrome.runtime.sendMessage({
               method: "callApiGetSumup",
+              operation: 'sumup',
               data: selectedText,
               lan: language,
               token: sumupToken,
@@ -131,13 +133,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     fetch(chrome.runtime.getURL('dialog.html'))
       .then(response => response.text())
       .then(data => {
-        let strLen = selectedText.length;
+        readingLength = selectedText.length;
         let parser = new DOMParser();
         let dialogDoc = parser.parseFromString(data, 'text/html');
         let dialogBox = dialogDoc.getElementById('sumupDialog');
         let btnClose = dialogDoc.getElementById('btn-close');
         let contentDiv = dialogDoc.getElementById('sumupContent');
-        if (strLen === 0) {
+        if (readingLength === 0) {
           contentDiv.textContent = '还没有选择要阅读的文字。';
         } else {
           contentDiv.textContent = '正在阅读，请稍等...';
@@ -150,10 +152,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
           myDialogShown = false;
         }, { once: true });
 
-        if (strLen > 0) {
+        if (readingLength > 0) {
           // 获取数据并更新对话框的内容
           chrome.runtime.sendMessage({
             method: "callApiGetSumup",
+            operation: request.operation,
             data: selectedText,
             lan: language,
             token: sumupToken,
@@ -165,6 +168,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (myDialogShown) {
       let contentDiv = document.getElementById('sumupContent');
       contentDiv.textContent = request.data
+    }
+  } else if (request.action === 'apiGetSumupResponseEnd') {
+    if (myDialogShown) {
+      let divTitle = document.getElementById('sumupTitle');
+      divTitle.textContent = '阅读长度: ' + readingLength;
+      // ' <br/> <a href="https://reading.mangosteen.one/my-reading"> 我要提问 </a>';
     }
   } else if (request.action === 'StorageChanged') {
     if (request.key === 'sumupShowStatus') {
