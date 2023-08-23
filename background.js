@@ -1,4 +1,4 @@
-const apiUrlBase = 'http://192.168.0.20:8080';
+const apiUrlBase = 'http://192.168.0.10:8080';
 // const apiUrlBase = 'https://ai.mangosteen.one/apiShop';
 
 // Description: background script
@@ -54,6 +54,7 @@ function apiGetSumupStream(sessionId, token, sender) {
   var source = new EventSource(apiUrl + '?token=' + token + '&sessionId=' + sessionId);
 
   source.addEventListener('message', function (event) {
+    // console.log('Message Length:', event.data.length);
     if (event.data.length > 0) {
       message += event.data;
     } else {
