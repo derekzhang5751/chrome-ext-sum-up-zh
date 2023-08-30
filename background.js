@@ -1,5 +1,5 @@
-const apiUrlBase = 'http://192.168.0.10:8080';
-// const apiUrlBase = 'https://ai.mangosteen.one/apiShop';
+// const apiUrlBase = 'http://192.168.0.10:8080';
+const apiUrlBase = 'https://ai.mangosteen.one/apiShop';
 
 // Description: background script
 function apiGetSumupV2(operation, data, lan, token, url, sender) {

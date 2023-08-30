@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "山竹阅读助手",
-  "description": "帮您阅读并总结页面内容，提高阅读效率，跨越语言障碍。",
+  "name": "阅读助手",
+  "description": "帮您阅读并总结页面内容，无论何种语言，提高阅读效率。",
   "version": "1.1.20",
   "permissions": [
     "activeTab",
