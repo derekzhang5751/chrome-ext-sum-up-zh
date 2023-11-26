@@ -1,31 +1,29 @@
-// const apiUrlBase = 'http://192.168.0.10:8080';
-const apiUrlBase = 'https://ai.mangosteen.one/apiShop';
+// const apiUrlBase = 'http://192.168.0.20:8091';
+const apiUrlBase = 'https://english.mytutor.life/api';
 
 // Description: background script
 function apiGetSumupV2(operation, data, lan, token, url, sender) {
   return new Promise((resolve, reject) => {
-    const body = new FormData();
-    body.append('action', operation);
-    body.append('text', data);
-    body.append('url', url);
-    body.append('language', lan);
-    body.append('type', 'text');
+    const requestData = {
+      action: operation,
+      text: data,
+      url: url,
+      language: lan,
+      type: 'text',
+    };
+
     // 返回一个promise
-    const apiUrl = apiUrlBase + '/mylib/sum-up-create/';
+    const apiUrl = apiUrlBase + '/study/sum-up-create';
     return fetch(apiUrl, {
       method: 'POST',
+      credentials: 'include',
       headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
-      body: body // JSON.stringify(body), // data can be `string` or {object}!
+      body: JSON.stringify(requestData)
     })
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          return { success: false, msg: `HTTP error! status: ${response.status}` };
-        }
-      })
+      .then(response => response.json())
       .then(data => {
         if (data.success) {
           // Save token to chrome storage
@@ -49,9 +47,9 @@ function apiGetSumupV2(operation, data, lan, token, url, sender) {
 
 function apiGetSumupStream(sessionId, token, sender) {
   let message = '';
-  console.log('apiGetSumupV2', apiUrlBase)
-  const apiUrl = apiUrlBase + '/mylib/sum-up-stream/';
-  var source = new EventSource(apiUrl + '?token=' + token + '&sessionId=' + sessionId);
+  // console.log('apiGetSumupV2', apiUrlBase)
+  const apiUrl = apiUrlBase + '/study/response/' + sessionId;
+  var source = new EventSource(apiUrl);
 
   source.addEventListener('message', function (event) {
     // console.log('Message Length:', event.data.length);
@@ -64,9 +62,9 @@ function apiGetSumupStream(sessionId, token, sender) {
   });
 
   source.addEventListener('end', function (event) {
-    console.log('End:', event.data);
+    // console.log('End:', event.data);
     source.close();
-    chrome.tabs.sendMessage(sender.tab.id, { action: 'apiGetSumupResponseEnd', data: event.data });
+    chrome.tabs.sendMessage(sender.tab.id, { action: 'apiGetSumupResponseEnd', data: sessionId });
   });
 
   source.addEventListener('error', function (event) {

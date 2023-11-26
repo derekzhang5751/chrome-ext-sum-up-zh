@@ -97,9 +97,9 @@ document.addEventListener('mouseup', function (e) {
           let btnClose = dialogDoc.getElementById('btn-close');
           let contentDiv = dialogDoc.getElementById('sumupContent');
           if (readingLength === 0) {
-            contentDiv.textContent = '还没有选择要阅读的文字。';
+            contentDiv.textContent = '还没有选择要读取的文字。';
           } else {
-            contentDiv.textContent = '正在阅读，请稍等...';
+            contentDiv.textContent = '正在读取，请稍等...';
           }
           myDialogShown = true;
           document.body.appendChild(dialogBox);
@@ -140,9 +140,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         let btnClose = dialogDoc.getElementById('btn-close');
         let contentDiv = dialogDoc.getElementById('sumupContent');
         if (readingLength === 0) {
-          contentDiv.textContent = '还没有选择要阅读的文字。';
+          contentDiv.textContent = '还没有选择要读取的文字。';
         } else {
-          contentDiv.textContent = '正在阅读，请稍等...';
+          contentDiv.textContent = '正在读取，请稍等...';
         }
         myDialogShown = true;
         document.body.appendChild(dialogBox);
@@ -173,7 +173,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (myDialogShown) {
       let divTitle = document.getElementById('sumupTitle');
       divTitle.textContent = '阅读长度: ' + readingLength;
-      // ' <br/> <a href="https://reading.mangosteen.one/my-reading"> 我要提问 </a>';
+      // Set a link to open english tutor
+      const moreLink = document.getElementById('mongosteenMoreFeatures');
+      moreLink.style.display = 'block';
+      moreLink.href = "https://english.mytutor.life/mytutor?sessionId=" + request.data;
     }
   } else if (request.action === 'StorageChanged') {
     if (request.key === 'sumupShowStatus') {
